@@ -25,69 +25,249 @@ const db = mysql.createConnection(
 
 //Add Inquirer prompts questions 
 const inquirer = require('inquirer');
-inquirer
-		.prompt([
-		{
-			// List type to allow user for choosing between options.
-			type: 'list',
-			name: 'action',
-			message: 'What would you like to do?',
-			choices: [
-			
-			'View ALL Employees.',
-            'Add Employee.',
-            'Update Employee Role.',
-            'View ALL Roles.',
-            'Add Role.',
-            'View ALL Departments.',
-			'Add Department.',
-			
-			],
-		},
-		])
-    	// Then function to pass user inputs as answer param.
-		.then((answer) => {
-		// Call respective functions based on user's choice through param.
-		switch (answer.action) {
-            case 'View ALL Employees.':
-			ViewAllEmployees();
-            break;
 
-            case 'Add Employee.':
-			AddEmployee();
-			break;
+function start() {
+    inquirer
+        .prompt({
+            name: 'action',
+            type: 'list',
+            message: 'What would you like to do?',
+            choices: ['View ALL Employees.', 'Add Employee.', 'Update Employee Role.', 'View ALL Roles.', 'Add Role.', 'View ALL Departments.', 'Add Department.']
+        })
+        .then(function (answer) {
+            switch (answer.action) {
+                case 'View ALL Employees.':
+                    viewAllEmployees();
+                    break;
 
-            case 'Update Employee Role.':
-			UpdateEmployeeRole();
-			break;
+                case 'Add Employee.':
+                    addEmployee();
+                    break;
 
-            case 'View ALL Roles.':
-			ViewAllRoles();
-			break;
+                case 'Update Employee Role.':
+                    updateEmployeeRole();
+                    break;
 
-            case 'Add Role.':
-			AddRole();
-			break;
+                case 'View ALL Roles.':
+                    viewAllRoles();
+                    break;
 
-			case 'View ALL Departments.':
-			ViewAllDepartments();
-			break;
-			
-			case 'Add Department.':
-			AddDepartment();
-			break;
-			
-			default:
-			console.log('Invalid choice! Please select again...');
-			break;
-		}
-		})
-		// Catch function for any potential errors.
-		.catch((error) => {
-			console.log('An error occurred:', error);
-			connection.end();
-		});
+                case 'Add Role.':
+                    addRole();
+                    break;
 
+                case 'View ALL Departments.':
+                    viewAllDepartments();
+                    break;
+
+                case 'Add Department.':
+                    addDepartment();
+                    break;
+            }
+        })
+}
+
+//View ALL Employees
+function viewAllEmployees() {
+    db.query('SELECT * FROM employee', function (err, results) {
+        console.table(results);
+        start();
+    })
+}
+
+//Add Employee
+function addEmployee() {
+    inquirer
+
+        .prompt([
+            {
+                name: 'first_name',
+                type: 'input',
+                message: 'What is the employees first name?'
+
+            },
+            {
+                name: 'last_name',
+                type: 'input',
+                message: 'What is the employees last name?'
+                
+            },
+            {
+                name: 'role_id',
+                type: 'input',
+                message: 'What is the employees role id?'
+
+            },
+            {
+                name: 'manager_id',
+                type: 'input',
+                message: 'What is the employees manager id?'
+
+            }
+        ])
+        .then(function (answer) {
+            db.query('INSERT INTO employee SET ?',
+
+
+                {
+                    first_name: answer.first_name,
+                    last_name: answer.last_name,
+                    role_id: answer.role_id,
+                    manager_id: answer.manager_id
+                },
+                function (err, results) {
+                    if (err) throw err;
+                    console.table(results);
+                    start();
+                })
+        })
+}
+
+
+//Update Employee Role
+function updateEmployeeRole() {
+    inquirer
+
+        .prompt([
+            {
+                name: 'first_name',
+                type: 'input',
+                message: 'What is the employees first name?'
+
+            },
+            {
+                name: 'last_name',
+                type: 'input',
+                message: 'What is the employees last name?'
+
+            },
+            {
+                name: 'role_id',
+                type: 'input',
+                message: 'What is the employees role id?'
+
+            },
+            {
+                name: 'manager_id',
+                type: 'input',
+                message: 'What is the employees manager id?'
+
+            }
+        ])
+        .then(function (answer) {
+            db.query('UPDATE employee SET ? WHERE ?',
+
+                [
+                    {
+                        role_id: answer.role_id,
+                        manager_id: answer.manager_id
+                    },
+                    {
+                        first_name: answer.first_name,
+                        last_name: answer.last_name
+                    }
+                ],
+                function (err, results) {
+                    if (err) throw err;
+                    console.table(results);
+                    start();
+                })
+        })
+}
+
+//View ALL Roles
+function viewAllRoles() {
+    db.query('SELECT * FROM role', function (err, results) {
+        console.table(results);
+        start();
+    })
+}
+
+
+//Add Role
+function addRole() {
+    inquirer
+
+
+        .prompt([
+            {
+                name: 'title',
+                type: 'input',
+                message: 'What is the title of the role?'
+
+            },
+            {
+                name: 'salary',
+                type: 'input',
+                message: 'What is the salary of the role?'
+
+            },
+            {
+                name: 'department_id',
+                type: 'input',
+                message: 'What is the department id of the role?'
+
+            }
+        ])
+        .then(function (answer) {
+            db.query('INSERT INTO role SET ?',
+
+
+                {
+                    title: answer.title,
+                    salary: answer.salary,
+                    department_id: answer.department_id
+                },
+                function (err, results) {
+                    if (err) throw err;
+                    console.table(results);
+                    start();
+                })
+        })
+}
+
+//View ALL Departments
+function viewAllDepartments() {
+    db.query('SELECT * FROM department', function (err, results) {
+        console.table(results);
+        start();
+    })
+}
+
+
+
+//Add Department
+function addDepartment() {
+    inquirer
+
+
+        .prompt([
+
+            {
+                name: 'name',
+                type: 'input',
+                message: 'What is the name of the department?'
+
+            }
+        ])
+
+        .then(function (answer) {
+            db.query('INSERT INTO department SET ?',
+
+
+                {
+                    name: answer.name
+
+                },
+                function (err, results) {
+                    if (err) throw err;
+                    console.table(results);
+                    start();
+                })
+        })
+}
+
+start();
 
 
 // Start the server.
